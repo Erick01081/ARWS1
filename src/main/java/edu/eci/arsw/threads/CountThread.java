@@ -10,15 +10,16 @@ package edu.eci.arsw.threads;
  * @author hcadavid
  */
 public class CountThread extends Thread {
-    private int a;
-    private int b;
-    public CountThread(int a, int b){
-        this.a=a;
-        this.b=b;
+    private int intervaloInicial;
+    private int intervaloFinal;
+    public CountThread(int intervaloInicial, int b){
+        this.intervaloInicial=intervaloInicial;
+        this.intervaloFinal=intervaloFinal;
     }
+
     @Override
     public void run(){
-        for (int i=a;i<=b;i++){
+        for (int i=intervaloInicial;i<=intervaloFinal;i++){
             System.out.println(i);
         }
     }

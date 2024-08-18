@@ -8,7 +8,6 @@ public class BlackListThread extends Thread {
     private int a;
     private int b;
     private String ipAddress;
-    //private HostBlackListsValidator hblv;
     private static int ocurrencesCount;
     private ArrayList<Integer> indexReport = new ArrayList<Integer>();
     private boolean endSearch;
@@ -17,7 +16,6 @@ public class BlackListThread extends Thread {
         this.a = a;
         this.b = b;
         this.ipAddress = ip;
-        //this.hblv = hblv;
         this.ocurrencesCount = 0;
         endSearch = false;
     }
@@ -29,11 +27,11 @@ public class BlackListThread extends Thread {
         return false;
     }
     
-    public void findReports(String ipAdrress, int a, int b){
+    public void findReports(String ipAddress, int a, int b){
         int i;
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
         for (i = a; i < b && !endByBlackListCount(); i++){
-            if(skds.isInBlackListServer(i, ipAdrress)){
+            if(skds.isInBlackListServer(i, ipAddress)){
                 ocurrencesCount++;
                 indexReport.add(i);
             }
