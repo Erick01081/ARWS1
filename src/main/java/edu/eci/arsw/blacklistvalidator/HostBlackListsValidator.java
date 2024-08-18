@@ -68,13 +68,17 @@ public class HostBlackListsValidator {
     public List<Integer> checkHost(String ipAddress, int numberThreads){
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
         int amountServers = skds.getRegisteredServersCount();
-        int start = 0;
-        int i;
-        int delta = amountServers / numberThreads;
+        int start = 0, i, delta = amountServers / numberThreads;
+        int residue = amountServers - delta * numberThreads;
+        if(residue > 0){
+            delta++;
+        }
         int end = delta;
         ArrayList<Integer> reportHosts = new ArrayList<Integer>();
         ArrayList<BlackListThread> threads = new ArrayList<BlackListThread>();
         for(i = 0; i < numberThreads; i++){
+            if(residue == 0){delta --;}
+            else{residue --;}
             BlackListThread thread = new BlackListThread(start, end, ipAddress);
             threads.add(thread);
             thread.start();
