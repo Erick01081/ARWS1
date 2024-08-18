@@ -68,22 +68,25 @@ public class HostBlackListsValidator {
     public List<Integer> checkHost(String ipAddress, int numberThreads){
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
         int amountServers = skds.getRegisteredServersCount();
-        int start = 0, i, delta = amountServers / numberThreads;
-        int residue = amountServers - delta * numberThreads;
-        if(residue > 0){
-            delta++;
-        }
+        int start = 0, i, delta = amountServers / numberThreads, amountLists = 0;
+        int residue = amountServers % numberThreads;
         int end = delta;
         ArrayList<Integer> reportHosts = new ArrayList<Integer>();
         ArrayList<BlackListThread> threads = new ArrayList<BlackListThread>();
         for(i = 0; i < numberThreads; i++){
-            if(residue == 0){delta --;}
-            else{residue --;}
             BlackListThread thread = new BlackListThread(start, end, ipAddress);
             threads.add(thread);
             thread.start();
             start += delta;
             end += delta;
+            amountLists += delta;
+        }
+        if(residue > 0){
+            end = end - delta + residue;
+            BlackListThread thread = new BlackListThread(start, end, ipAddress);
+            threads.add(thread);
+            thread.start();
+            amountLists += residue;
         }
         for(BlackListThread t: threads){
             try {
@@ -93,6 +96,7 @@ public class HostBlackListsValidator {
             }
             reportHosts.addAll(t.getHosts());
         }
+        LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{amountLists, skds.getRegisteredServersCount()});
         return  reportHosts;
     }
 

@@ -30,6 +30,10 @@ public class BlackListThread extends Thread {
     public void findReports(String ipAddress, int a, int b){
         int i;
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
+        int amountHosts = skds.getRegisteredServersCount();
+        if(b > amountHosts){
+            b = amountHosts;
+        }
         for (i = a; i < b && !endByBlackListCount(); i++){
             if(skds.isInBlackListServer(i, ipAddress)){
                 ocurrencesCount++;
