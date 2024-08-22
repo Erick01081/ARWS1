@@ -12,7 +12,7 @@ package edu.eci.arsw.threads;
 public class CountThread extends Thread {
     private int intervaloInicial;
     private int intervaloFinal;
-    public CountThread(int intervaloInicial, int b){
+    public CountThread(int intervaloInicial, int intervaloFinal){
         this.intervaloInicial=intervaloInicial;
         this.intervaloFinal=intervaloFinal;
     }
