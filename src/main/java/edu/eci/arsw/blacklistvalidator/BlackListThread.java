@@ -3,7 +3,6 @@ import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
-
 public class BlackListThread extends Thread {
     private int intervaloInicial, intervaloFinal;
     private String ipAddress;
