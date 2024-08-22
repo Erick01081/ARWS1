@@ -33,61 +33,50 @@ public class HostBlackListsValidator {
      * @return  Blacklists numbers where the given host's IP address was found.
      */
     public List<Integer> checkHost(String ipaddress){
-
         LinkedList<Integer> blackListOcurrences=new LinkedList<>();
-
         int ocurrencesCount=0;
-
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
-
         int checkedListsCount=0;
-
         for (int i=0;i<skds.getRegisteredServersCount() && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++){
             checkedListsCount++;
-
             if (skds.isInBlackListServer(i, ipaddress)){
-
                 blackListOcurrences.add(i);
-
                 ocurrencesCount++;
             }
         }
-
         if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
             skds.reportAsNotTrustworthy(ipaddress);
         }
         else{
             skds.reportAsTrustworthy(ipaddress);
         }
-
         LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{checkedListsCount, skds.getRegisteredServersCount()});
-
         return blackListOcurrences;
     }
 
-    public List<Integer> checkHost(String ipAddress, int numberThreads){
-        HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
-        int amountServers = skds.getRegisteredServersCount();
-        int start = 0, i, delta = amountServers / numberThreads, amountLists = 0;
+    private ArrayList<BlackListThread> createThreads(int numberThreads, String ipAddress){
+        int  amountServers=HostBlacklistsDataSourceFacade.getInstance().getRegisteredServersCount();
+        ArrayList<BlackListThread> threads = new ArrayList<BlackListThread>();
+        int start = 0, i, delta = amountServers / numberThreads + 1;
         int residue = amountServers % numberThreads;
         int end = delta;
-        ArrayList<Integer> reportHosts = new ArrayList<Integer>();
-        ArrayList<BlackListThread> threads = new ArrayList<BlackListThread>();
         for(i = 0; i < numberThreads; i++){
+            if(i == residue){delta--;}
             BlackListThread thread = new BlackListThread(start, end, ipAddress);
             threads.add(thread);
             thread.start();
-            start += delta;
-            end += delta;
-            amountLists += delta;
+            start += delta; end += delta;
         }
-        if(residue > 0){
-            end = end - delta + residue;
-            BlackListThread thread = new BlackListThread(start, end, ipAddress);
-            threads.add(thread);
-            thread.start();
-            amountLists += residue;
-        }
+        threadsLog(end, amountServers);
+        return threads;
+    }
+
+    private void threadsLog(int numberServers, int amountServers){
+        LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{numberServers, amountServers});
+    }
+
+    private ArrayList<Integer> stopThreads(ArrayList<BlackListThread> threads){
+        ArrayList<Integer> reportHosts = new ArrayList<Integer>();
         for(BlackListThread t: threads){
             try {
                 t.join();
@@ -96,8 +85,12 @@ public class HostBlackListsValidator {
             }
             reportHosts.addAll(t.getHosts());
         }
-        LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{amountLists, skds.getRegisteredServersCount()});
-        return  reportHosts;
+        return reportHosts;
+    }
+
+    public List<Integer> checkHost(String ipAddress, int numberThreads){
+        ArrayList<BlackListThread> threads = createThreads(numberThreads, ipAddress);
+        return stopThreads(threads);
     }
 
 

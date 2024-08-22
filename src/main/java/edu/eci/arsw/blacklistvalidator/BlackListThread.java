@@ -5,19 +5,16 @@ import java.lang.annotation.Documented;
 import java.util.ArrayList;
 
 public class BlackListThread extends Thread {
-    private int a;
-    private int b;
+    private int intervaloInicial, intervaloFinal;
     private String ipAddress;
     private static int ocurrencesCount;
     private ArrayList<Integer> indexReport = new ArrayList<Integer>();
-    private boolean endSearch;
 
-    public BlackListThread(int a, int b, String ip) {
-        this.a = a;
-        this.b = b;
+    public BlackListThread(int intervaloInicial, int intervaloFinal, String ip) {
+        this.intervaloInicial = intervaloInicial;
+        this.intervaloFinal = intervaloFinal;
         this.ipAddress = ip;
-        this.ocurrencesCount = 0;
-        endSearch = false;
+        ocurrencesCount = 0;
     }
 
     public boolean endByBlackListCount(){
@@ -27,31 +24,27 @@ public class BlackListThread extends Thread {
         return false;
     }
     
-    public void findReports(String ipAddress, int a, int b){
-        int i;
+    public void findReports(String ipAddress, int intervaloInicial, int intervaloFinal){
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
         int amountHosts = skds.getRegisteredServersCount();
-        if(b > amountHosts){
-            b = amountHosts;
-        }
-        for (i = a; i < b && !endByBlackListCount(); i++){
+        if(intervaloFinal > amountHosts){intervaloFinal = amountHosts;}
+        for (int i = intervaloInicial; i < intervaloFinal && !endByBlackListCount(); i++){
             if(skds.isInBlackListServer(i, ipAddress)){
                 ocurrencesCount++;
                 indexReport.add(i);
             }
         }
-        endSearch = true;
     }
 
     @Override
     public void run(){
-        while(!endByBlackListCount() && !endSearch){
-            findReports(ipAddress, a, b);
+        if(!endByBlackListCount()){
+            findReports(ipAddress, intervaloInicial, intervaloFinal);
         }
     }
 
     public ArrayList<Integer> getHosts(){
         return indexReport;
     }
-    
+
 }
