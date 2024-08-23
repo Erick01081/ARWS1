@@ -17,7 +17,7 @@ public class BlackListThread extends Thread {
     }
 
     public boolean endByBlackListCount(){
-        if (ocurrencesCount == HostBlackListsValidator.BLACK_LIST_ALARM_COUNT){
+        if (ocurrencesCount >= HostBlackListsValidator.BLACK_LIST_ALARM_COUNT){
             return true;
         }
         return false;

@@ -5,6 +5,7 @@
  */
 package edu.eci.arsw.blacklistvalidator;
 
+import java.sql.Time;
 import java.util.List;
 
 /**
@@ -13,10 +14,18 @@ import java.util.List;
  */
 public class   Main {
     
-    public static void main(String a[]){
-        HostBlackListsValidator hblv=new HostBlackListsValidator();
-        List<Integer> blackListOcurrences=hblv.checkHost("212.24.24.55", 2 * (Runtime.getRuntime().availableProcessors()));
-        System.out.println("The host was found in the following blacklists:"+blackListOcurrences);
+    public static void main(String a[]) {
+        HostBlackListsValidator hblv = new HostBlackListsValidator();
+        long timeStart = System.currentTimeMillis();
+        List<Integer> blackListOcurrences = hblv.checkHost("212.24.24.55", 100000);
+        System.out.println("The host was found in the following blacklists:" + blackListOcurrences);
+        long timeEnd = System.currentTimeMillis();
+        long totalTime = timeEnd - timeStart;
+        System.out.println("The time of execution is " + totalTime);
     }
-    
 }
+
+
+
+
+// 2 * (Runtime.getRuntime().availableProcessors())
